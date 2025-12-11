@@ -17,6 +17,7 @@ function App() {
   const [newTopicIds, setNewTopicIds] = useState([])
   const [updatedTopicIds, setUpdatedTopicIds] = useState([])
   const [viewMode, setViewMode] = useState('ripple')
+  const [currentCanvasId, setCurrentCanvasId] = useState(null)
   // Flag ensures demo UI only appears when user explicitly visits /demo
   const isDemoPage = typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/demo'
   
@@ -86,9 +87,221 @@ function App() {
   const gradientBlobRefs = useRef([])
   const nextEffectId = useRef(0)
   const colorMapRef = useRef({})
-  const mapPositionsRef = useRef({})
+    const mapPositionsRef = useRef({})
   const keywordOrbitCacheRef = useRef({})
   const mapTopicAnglesRef = useRef({})
+
+  // Helpers to read/write structured positions (ripple/map/keywords)
+  const getPositionEntry = (topicId) => positionsRef.current[topicId] || {}
+  const setPositionEntry = (topicId, updater) => {
+    const prev = positionsRef.current[topicId] || {}
+    positionsRef.current[topicId] = updater(prev)
+  }
+  const getRipplePositionFromStore = (topicId) => {
+    const entry = getPositionEntry(topicId)
+    if (entry.ripple && typeof entry.ripple.x === 'number') return entry.ripple
+    if (typeof entry.x === 'number' && typeof entry.y === 'number') {
+      return { x: entry.x, y: entry.y, size: entry.size }
+    }
+    return null
+  }
+  const getMapPositionFromStore = (topicId) => {
+    const entry = getPositionEntry(topicId)
+    if (entry.map && typeof entry.map.x === 'number') return entry.map
+    return null
+  }
+  const getKeywordPositionsFromStore = (topicId) => {
+    const entry = getPositionEntry(topicId)
+    if (entry.keywords && typeof entry.keywords === 'object') return entry.keywords
+    return null
+  }
+
+  const buildPositionsPayload = () => {
+    const payload = {}
+    topics.forEach(t => {
+      const base = positionsRef.current[t.id] || {}
+      const ripple = ripplePositions[t.id] || base.ripple
+      const mapPos = (mapPositionsRef.current && mapPositionsRef.current[t.id]) || base.map
+      const keywordsPos = (base.keywords) || (keywordOrbitCacheRef.current?.[t.id]) || {}
+      const entry = {}
+      if (ripple && typeof ripple.x === 'number' && typeof ripple.y === 'number') {
+        entry.ripple = { x: ripple.x, y: ripple.y, size: ripple.size }
+      }
+      if (mapPos && typeof mapPos.x === 'number' && typeof mapPos.y === 'number') {
+        entry.map = { x: mapPos.x, y: mapPos.y }
+      }
+      if (keywordsPos && typeof keywordsPos === 'object' && Object.keys(keywordsPos).length > 0) {
+        entry.keywords = keywordsPos
+      }
+      if (Object.keys(entry).length > 0) {
+        payload[t.id] = entry
+      }
+    })
+    return payload
+  }
+
+  const savePositionsToBackend = async () => {
+    if (!currentCanvasId) return
+    try {
+      const payload = { positions: buildPositionsPayload() }
+      const resp = await fetch(`/canvas/${currentCanvasId}/positions`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      const data = await resp.json()
+      if (data.ok) {
+        const nextHistory = historyList.map(item =>
+          item.id === currentCanvasId ? { ...item, positions: payload.positions } : item
+        )
+        setHistoryList(nextHistory)
+        saveHistoryCache(nextHistory)
+        console.log('[canvas] Positions saved for canvas:', currentCanvasId)
+      }
+    } catch (err) {
+      console.error('[canvas] Error saving positions:', err)
+    }
+  }
+
+  // Drag state for ripple view
+  const rippleDragRef = useRef(null)
+  const rippleDragFrame = useRef(null)
+
+  const startRippleDrag = (event, topicId, size) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const pos = ripplePositions[topicId]
+    if (!pos) return
+    rippleDragRef.current = {
+      id: topicId,
+      offsetX: event.clientX - pos.x,
+      offsetY: event.clientY - pos.y,
+      size: size || pos.size
+    }
+    window.addEventListener('pointermove', onRippleDragMove, { passive: false })
+    window.addEventListener('pointerup', endRippleDrag)
+  }
+
+  const onRippleDragMove = (event) => {
+    if (!rippleDragRef.current) return
+    const { id, offsetX, offsetY, size } = rippleDragRef.current
+    const next = {
+      x: event.clientX - offsetX,
+      y: event.clientY - offsetY,
+      size: size
+    }
+    setRipplePositions(prev => ({ ...prev, [id]: next }))
+    setPositionEntry(id, (prev) => ({ ...prev, ripple: next }))
+  }
+
+  const endRippleDrag = () => {
+    rippleDragRef.current = null
+    if (rippleDragFrame.current) {
+      cancelAnimationFrame(rippleDragFrame.current)
+      rippleDragFrame.current = null
+    }
+    window.removeEventListener('pointermove', onRippleDragMove)
+    window.removeEventListener('pointerup', endRippleDrag)
+    savePositionsToBackend()
+  }
+
+  // Drag state for map view
+  const mapDragRef = useRef(null)
+  const mapDragFrame = useRef(null)
+  const mapCanvasRef = useRef(null)
+  const [, forceMapRender] = useState(0) // lightweight rerender trigger
+
+  const getMapPointer = (event) => {
+    const rect = mapCanvasRef.current?.getBoundingClientRect()
+    if (!rect) return { x: event.clientX, y: event.clientY }
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    }
+  }
+
+  const startMapTopicDrag = (event, topicId) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const pos = mapPositionsRef.current[topicId] || getMapPosition(topicId, 0)
+    const pointer = getMapPointer(event)
+    mapDragRef.current = {
+      type: 'topic',
+      topicId,
+      startX: pointer.x,
+      startY: pointer.y,
+      baseX: pos.x,
+      baseY: pos.y
+    }
+    window.addEventListener('pointermove', onMapDragMove)
+    window.addEventListener('pointerup', endMapDrag)
+  }
+
+  const startMapKeywordDrag = (event, topicId, keywordKey, pos) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const pointer = getMapPointer(event)
+    mapDragRef.current = {
+      type: 'keyword',
+      topicId,
+      keywordKey,
+      startX: pointer.x,
+      startY: pointer.y,
+      baseX: pos.x,
+      baseY: pos.y
+    }
+    window.addEventListener('pointermove', onMapDragMove)
+    window.addEventListener('pointerup', endMapDrag)
+  }
+
+  const onMapDragMove = (event) => {
+    if (!mapDragRef.current) return
+    const drag = mapDragRef.current
+    const pointer = getMapPointer(event)
+    const dx = pointer.x - drag.startX
+    const dy = pointer.y - drag.startY
+
+    if (mapDragFrame.current) return
+    mapDragFrame.current = requestAnimationFrame(() => {
+      mapDragFrame.current = null
+      if (drag.type === 'topic') {
+        const nx = drag.baseX + dx
+        const ny = drag.baseY + dy
+        mapPositionsRef.current[drag.topicId] = { x: nx, y: ny, radius: MAP_TOPIC_RADIUS }
+        setPositionEntry(drag.topicId, (prev) => ({
+          ...prev,
+          map: { x: nx, y: ny },
+          ripple: prev.ripple
+        }))
+      } else if (drag.type === 'keyword') {
+        const nx = drag.baseX + dx
+        const ny = drag.baseY + dy
+        if (!keywordOrbitCacheRef.current[drag.topicId]) {
+          keywordOrbitCacheRef.current[drag.topicId] = {}
+        }
+        keywordOrbitCacheRef.current[drag.topicId][drag.keywordKey] = { x: nx, y: ny }
+        setPositionEntry(drag.topicId, (prev) => ({
+          ...prev,
+          keywords: {
+            ...(prev.keywords || {}),
+            [drag.keywordKey]: { x: nx, y: ny }
+          }
+        }))
+      }
+      forceMapRender(t => t + 1)
+    })
+  }
+
+  const endMapDrag = () => {
+    mapDragRef.current = null
+    if (mapDragFrame.current) {
+      cancelAnimationFrame(mapDragFrame.current)
+      mapDragFrame.current = null
+    }
+    window.removeEventListener('pointermove', onMapDragMove)
+    window.removeEventListener('pointerup', endMapDrag)
+    savePositionsToBackend()
+  }
 
 
   // 测试文本（分成15句，可以产生4个话题）
@@ -276,6 +489,16 @@ const getDynamicFontSize = (text = '', base = 18, min = 12) => {
   if (length <= 8) return base
   const scaled = base - (length - 8) * 0.8
   return Math.max(min, scaled)
+}
+
+// Approximate font size to fit within a given container width
+const fitFontToWidth = (text = '', containerWidth = 80, base = 14, min = 8) => {
+  const len = Math.max(1, text.length)
+  // Rough char width factor to avoid expensive measuring
+  const estWidth = len * 0.55 * base
+  if (estWidth <= containerWidth) return base
+  const scale = containerWidth / estWidth
+  return Math.max(min, Math.floor(base * scale))
 }
 
 const isCircleOverlapping = (x, y, radius, placed = [], padding = 12) => {
@@ -672,10 +895,15 @@ const buildDynamicGradientSnapshot = (time = 0) => {
     if (recording) return
     
     try {
-      const response = await fetch('/canvas/new', { method: 'POST' })
+      const response = await fetch('/canvas/new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ positions: positionsRef.current || {} })
+      })
       const data = await response.json()
       
       if (data.ok) {
+        setCurrentCanvasId(data.canvas_id || null)
         // Clear current state
         setTopics([])
         setRipplePositions({})
@@ -745,9 +973,41 @@ const buildDynamicGradientSnapshot = (time = 0) => {
         // Fetch the updated topics
         const topicsResponse = await fetch('/topics')
         const topicsData = await topicsResponse.json()
-        setTopics(topicsData.topics || [])
-        setRipplePositions({})
-        positionsRef.current = {}
+        const loadedTopics = topicsData.topics || []
+
+        // Apply stored positions if available
+        const incomingPositions = data.positions || {}
+        const rippleMap = {}
+        const nextPositionsRef = {}
+        loadedTopics.forEach(t => {
+          const pos = incomingPositions[t.id] || {}
+          const ripplePos = pos.ripple || pos
+          const mapPos = pos.map
+          const keywordPos = pos.keywords
+          const entry = {}
+          if (ripplePos && typeof ripplePos.x === 'number' && typeof ripplePos.y === 'number') {
+            entry.ripple = {
+              x: ripplePos.x,
+              y: ripplePos.y,
+              size: typeof ripplePos.size === 'number' ? ripplePos.size : calculateRippleSize(t.label, t.keyphrases)
+            }
+            rippleMap[t.id] = entry.ripple
+          }
+          if (mapPos && typeof mapPos.x === 'number' && typeof mapPos.y === 'number') {
+            entry.map = { x: mapPos.x, y: mapPos.y }
+          }
+          if (keywordPos && typeof keywordPos === 'object') {
+            entry.keywords = keywordPos
+          }
+          if (Object.keys(entry).length > 0) {
+            nextPositionsRef[t.id] = entry
+          }
+        })
+
+        positionsRef.current = nextPositionsRef
+        setRipplePositions(rippleMap)
+        setTopics(loadedTopics)
+        setCurrentCanvasId(canvasId)
         setActiveId(null)
         setHistoryOpen(false)
         console.log('[canvas] Loaded canvas:', canvasId)
@@ -1004,17 +1264,27 @@ const buildDynamicGradientSnapshot = (time = 0) => {
      const currentPositions = positionsRef.current
      const occupied = [] 
      
-     console.log(`[layout] ===== Computing positions for ${topics.length} topics =====`)
-     console.log(`[layout] Current positions in ref:`, Object.keys(currentPositions).map(id => `${id.slice(0,8)}: (${currentPositions[id].x.toFixed(0)}, ${currentPositions[id].y.toFixed(0)})`))
+    console.log(`[layout] ===== Computing positions for ${topics.length} topics =====`)
+    console.log(`[layout] Current positions in ref:`,
+      Object.entries(currentPositions)
+        .map(([id, entry]) => {
+          const rp = entry?.ripple
+          if (rp && typeof rp.x === 'number' && typeof rp.y === 'number') {
+            return `${id.slice(0,8)}: (${rp.x.toFixed(0)}, ${rp.y.toFixed(0)})`
+          }
+          return `${id.slice(0,8)}: (n/a)`
+        })
+    )
      
     topics.forEach((topic, index) => {
       const size = calculateRippleSize(topic.label, topic.keyphrases)
        console.log(`[layout] Processing topic ${index}: ${topic.label} (${topic.id.slice(0,8)}), size=${size}`)
        
        // 1. 如果已有位置
-       if (currentPositions[topic.id]) {
-         const existingPos = currentPositions[topic.id]
-         const oldSize = existingPos.size
+       const storedRipple = getRipplePositionFromStore(topic.id)
+       if (storedRipple && typeof storedRipple.x === 'number' && typeof storedRipple.y === 'number') {
+         const existingPos = storedRipple
+         const oldSize = existingPos.size || size
          const sizeChanged = Math.abs(size - oldSize) > 10 // 大小变化超过10px
          
          if (sizeChanged) {
@@ -1066,7 +1336,12 @@ const buildDynamicGradientSnapshot = (time = 0) => {
     const relaxed = relaxPositions(newPositions)
     
     // 立即更新 ref，确保下次 useEffect 能看到最新值
-    positionsRef.current = relaxed
+    const nextRef = { ...positionsRef.current }
+    Object.entries(relaxed).forEach(([tid, pos]) => {
+      const prev = positionsRef.current[tid] || {}
+      nextRef[tid] = { ...prev, ripple: pos }
+    })
+    positionsRef.current = nextRef
     setRipplePositions(relaxed)
    }, [topics])
 
@@ -1111,9 +1386,15 @@ const buildDynamicGradientSnapshot = (time = 0) => {
 
     topics.forEach((topic, index) => {
       const topicId = topic.id || `topic-${index}`
-      const pos = findNonOverlappingPosition(MAP_TOPIC_RADIUS, placed, bounds, topicId)
-      nextPositions[topicId] = { ...pos, radius: MAP_TOPIC_RADIUS }
-      placed.push({ ...pos, radius: MAP_TOPIC_RADIUS })
+      const saved = getMapPositionFromStore(topicId)
+      if (saved && typeof saved.x === 'number' && typeof saved.y === 'number') {
+        nextPositions[topicId] = { x: saved.x, y: saved.y, radius: MAP_TOPIC_RADIUS }
+        placed.push({ x: saved.x, y: saved.y, radius: MAP_TOPIC_RADIUS })
+      } else {
+        const pos = findNonOverlappingPosition(MAP_TOPIC_RADIUS, placed, bounds, topicId)
+        nextPositions[topicId] = { ...pos, radius: MAP_TOPIC_RADIUS }
+        placed.push({ ...pos, radius: MAP_TOPIC_RADIUS })
+      }
     })
 
     mapPositionsRef.current = { ...nextPositions, __canvasCenter: { x: fullWidth / 2, y: fullHeight / 2 } }
@@ -1160,10 +1441,13 @@ const buildDynamicGradientSnapshot = (time = 0) => {
       const topicId = topic.id || `topic-${index}`
       const keywords = getTopicKeywords(topic).slice(0, 6)
       const existing = keywordOrbitCacheRef.current[topicId] || {}
+      const saved = getKeywordPositionsFromStore(topicId) || {}
       nextCache[topicId] = {}
       keywords.forEach((keyword, keywordIndex) => {
         const cacheKey = `${keyword}-${keywordIndex}`
-        if (existing[cacheKey]) {
+        if (saved[cacheKey]) {
+          nextCache[topicId][cacheKey] = saved[cacheKey]
+        } else if (existing[cacheKey]) {
           nextCache[topicId][cacheKey] = existing[cacheKey]
         }
       })
@@ -1252,7 +1536,8 @@ const buildDynamicGradientSnapshot = (time = 0) => {
       key: topic.id,
       className: className.join(' '),
       style,
-      onClick: () => setActiveId(activeId === topic.id ? null : topic.id)
+      onClick: () => setActiveId(activeId === topic.id ? null : topic.id),
+      onPointerDown: (e) => startRippleDrag(e, topic.id, pos.size)
     },
       React.createElement('div', {
         className: 'ripple-label',
@@ -1499,15 +1784,16 @@ const buildDynamicGradientSnapshot = (time = 0) => {
               // 关键：stage 高度 = rippleCanvasHeight，这样滚动逻辑和 Ripple 一致
               style: { height: `${viewportHeight}px` }
             },
-            React.createElement(
-              'svg',
-              {
-                className: 'map-canvas',
-                width: viewportWidth,
-                height: viewportHeight,
-                // SVG 自己再铺满 panel-stage
-                style: { width: '100%', height: '100%' }
-              },
+          React.createElement(
+            'svg',
+            {
+              className: 'map-canvas',
+              width: viewportWidth,
+              height: viewportHeight,
+              ref: mapCanvasRef,
+              // SVG 自己再铺满 panel-stage
+              style: { width: '100%', height: '100%' }
+            },
               // glass blur filter
               React.createElement(
                 'defs',
@@ -1559,7 +1845,12 @@ const buildDynamicGradientSnapshot = (time = 0) => {
                 ty = adjustedTopic.y
 
                 const topicText = clampText(formatTopicLabel(topic.label))
-                const topicFontSize = getDynamicFontSize(topicText, 16, 11)
+                const topicFontSize = fitFontToWidth(
+                  topicText,
+                  topicRadius * 2 - 12,
+                  16,
+                  10
+                )
 
                 // ========= 2) Keyword 位置：更长的线 + 角度/半径随机 =========
                 const keywordNodes = keywords.map((keyword, kIdx) => {
@@ -1634,7 +1925,8 @@ const buildDynamicGradientSnapshot = (time = 0) => {
                       onClick: () =>
                         setActiveId(
                           activeId === topic.id ? null : topic.id
-                        )
+                        ),
+                      onPointerDown: (e) => startMapTopicDrag(e, topic.id)
                     },
                     React.createElement('circle', {
                       cx: 0,
@@ -1668,18 +1960,21 @@ const buildDynamicGradientSnapshot = (time = 0) => {
                   // Keyword 节点：同样用 transform 来做平滑移动
                   keywordNodes.map((pos, idx) => {
                     const keywordText = clampText(pos.keyword)
-                    const keywordFontSize = getDynamicFontSize(
+                    const keywordFontSize = fitFontToWidth(
                       keywordText,
+                      keywordRadius * 2 - 6,
                       13,
-                      10
+                      9
                     )
+                    const kwKey = `${pos.keyword}-${idx}`
 
                     return React.createElement(
                       'g',
                       {
                         key: `keyword-${topic.id}-${idx}`,
                         className: 'map-keyword',
-                        transform: `translate(${pos.x}, ${pos.y})`
+                        transform: `translate(${pos.x}, ${pos.y})`,
+                        onPointerDown: (e) => startMapKeywordDrag(e, topic.id, kwKey, pos)
                       },
                       React.createElement('circle', {
                         cx: 0,

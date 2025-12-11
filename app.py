@@ -7,7 +7,7 @@ from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -96,6 +96,7 @@ class Canvas:
     summary: str
     topics: Dict[str, Topic]
     created_at: str
+    positions: Dict[str, dict] = field(default_factory=dict)
     
 class CanvasStore:
     def __init__(self, storage_path: str):
@@ -126,7 +127,8 @@ class CanvasStore:
                             title=item['title'],
                             summary=item['summary'],
                             topics=topics,
-                            created_at=item['created_at']
+                            created_at=item['created_at'],
+                            positions=item.get('positions', {})
                         ))
             except Exception as e:
                 print(f"[canvas] load error: {e}")
@@ -152,7 +154,8 @@ class CanvasStore:
                     'title': canvas.title,
                     'summary': canvas.summary,
                     'topics': topics_data,
-                    'created_at': canvas.created_at
+                    'created_at': canvas.created_at,
+                    'positions': canvas.positions
                 })
             with open(self.storage_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
@@ -333,6 +336,7 @@ RULES:
 3. **LABELING**:
    - New labels MUST be specific English phrases (1-3 words) such as "Travel Plan", "Camera Gear", "Creative Project".
    - NEVER use generic names like "Topic" or "General".
+   - If the utterance fits an EXISTING label or clearly overlaps existing keywords/summary, prefer MERGE/APPEND instead of creating another topic with the same label.
 
 Return ONE JSON object:
 - To append: {{"action":"append_point","topic_id":"<id>","text":"<short point>"}}
@@ -362,6 +366,113 @@ IMPORTANT:
 - Only JSON.
 """
 
+def normalize_keyphrases(klist: List[str]) -> List[str]:
+    """Deduplicate keyphrases case-insensitively, keep order, trim length."""
+    seen = set()
+    result = []
+    for k in klist:
+        if not isinstance(k, str):
+            continue
+        trimmed = k.strip()
+        if not trimmed:
+            continue
+        key = trimmed.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(trimmed[:30])
+    return result[:5]
+
+def normalize_topic_inplace(topic: "Topic"):
+    """Normalize label/keyphrases on a Topic instance."""
+    topic.label = normalize_label(topic.label)
+    topic.keyphrases = normalize_keyphrases(topic.keyphrases)
+
+def sanitize_positions(payload: Dict[str, Any]) -> Dict[str, dict]:
+    """Keep only numeric x/y/size for ripple/map/keywords."""
+    if not isinstance(payload, dict):
+        return {}
+    cleaned = {}
+    for tid, entry in payload.items():
+        if not isinstance(entry, dict):
+            continue
+        out = {}
+        rp = entry.get("ripple") or entry
+        if isinstance(rp, dict) and all(k in rp for k in ("x", "y")):
+            try:
+                rx = float(rp["x"]); ry = float(rp["y"])
+                rsize = float(rp["size"]) if "size" in rp else None
+                out["ripple"] = {"x": rx, "y": ry}
+                if rsize is not None:
+                    out["ripple"]["size"] = rsize
+            except Exception:
+                pass
+        mp = entry.get("map")
+        if isinstance(mp, dict) and all(k in mp for k in ("x", "y")):
+            try:
+                out["map"] = {"x": float(mp["x"]), "y": float(mp["y"])}
+            except Exception:
+                pass
+        kw = entry.get("keywords")
+        if isinstance(kw, dict):
+            kw_out = {}
+            for kk, kv in kw.items():
+                if isinstance(kv, dict) and all(k in kv for k in ("x", "y")):
+                    try:
+                        kw_out[kk] = {"x": float(kv["x"]), "y": float(kv["y"])}
+                    except Exception:
+                        pass
+            if kw_out:
+                out["keywords"] = kw_out
+        if out:
+            cleaned[tid] = out
+    return cleaned
+
+def merge_topics_in_map(topics: Dict[str, "Topic"], keep_id: str, drop_id: str) -> str:
+    """Merge drop_id topic into keep_id within a topics dict."""
+    if keep_id == drop_id:
+        return keep_id
+    if keep_id not in topics or drop_id not in topics:
+        return keep_id if keep_id in topics else drop_id
+    keep = topics[keep_id]
+    drop = topics[drop_id]
+    # Merge points (preserve order, avoid dup consecutive)
+    for p in drop.points:
+        if not keep.points or keep.points[-1] != p:
+            keep.points.append(p)
+    # Merge keyphrases with normalization
+    keep.keyphrases = normalize_keyphrases(list(keep.keyphrases) + list(drop.keyphrases))
+    # Prefer existing summary; fallback to drop if empty
+    if not keep.summary and drop.summary:
+        keep.summary = drop.summary
+    keep.last_updated = max(keep.last_updated, drop.last_updated, time.time())
+    topics.pop(drop_id, None)
+    return keep_id
+
+def dedup_topics_map(topics: Dict[str, "Topic"]) -> Dict[str, int]:
+    """Normalize and deduplicate topics by label within a topics dict."""
+    normalized = 0
+    merged = 0
+    # Normalize all topics first
+    for t in topics.values():
+        normalize_topic_inplace(t)
+        normalized += 1
+    # Deduplicate by label (case-insensitive), keep the most recently updated
+    label_map: Dict[str, str] = {}
+    # Sort by last_updated desc so we keep the newest
+    sorted_items = sorted(topics.items(), key=lambda kv: kv[1].last_updated, reverse=True)
+    for tid, t in sorted_items:
+        label_key = (t.label or "").strip().lower()
+        if not label_key:
+            continue
+        if label_key not in label_map:
+            label_map[label_key] = tid
+        else:
+            keep_id = label_map[label_key]
+            merge_topics_in_map(topics, keep_id, tid)
+            merged += 1
+    return {"normalized": normalized, "merged": merged}
+
 def canvas_summary_prompt(topics_info: str) -> str:
     """Generate a title and summary for the entire canvas"""
     return f"""
@@ -386,7 +497,7 @@ IMPORTANT:
 # ---------------------
 # LangGraph（LLM-only 决策，不用 embedding）
 # ---------------------
-def router_snapshot(max_topics: int = 6) -> str:
+def router_snapshot(max_topics: int = 12) -> str:
     topics = list(store.topics.values())
     topics.sort(key=lambda t: t.last_updated, reverse=True)
     rows = []
@@ -395,7 +506,8 @@ def router_snapshot(max_topics: int = 6) -> str:
             "id": t.id, 
             "label": t.label,
             "summary": t.summary,  # 加入摘要，帮助理解话题内涵
-            "keyphrases": t.keyphrases[:5]
+            "keyphrases": t.keyphrases[:5],
+            "recent_points": t.points[-3:]
         })
     return json.dumps(rows, ensure_ascii=False)
 
@@ -443,6 +555,48 @@ def build_graph():
         store.topics[tid] = Topic(id=tid, points=[to_point(state["decision"].get("utterance",""))], last_updated=now)
         return {"topic_id": tid, "changed": True}
 
+    def merge_topics(target_id: str, source_id: str) -> str:
+        """Merge source topic into target and delete source; return kept id"""
+        if target_id == source_id:
+            return target_id
+        if target_id not in store.topics or source_id not in store.topics:
+            return target_id if target_id in store.topics else source_id
+        target = store.topics[target_id]
+        source = store.topics[source_id]
+        # Merge points (preserve order, avoid dup consecutive)
+        for p in source.points:
+            if not target.points or target.points[-1] != p:
+                target.points.append(p)
+        # Merge keyphrases (unique, keep short list)
+        merged_keys = normalize_keyphrases(list(target.keyphrases) + list(source.keyphrases))
+        target.keyphrases = merged_keys
+        # Prefer existing summary; fallback to source if empty
+        if not target.summary and source.summary:
+            target.summary = source.summary
+        target.last_updated = max(target.last_updated, source.last_updated, time.time())
+        # Drop source
+        store.topics.pop(source_id, None)
+        return target_id
+
+    def dedup_by_label(current_id: str) -> str:
+        """If another topic has the same label (case-insensitive), merge into the newest one."""
+        if current_id not in store.topics:
+            return current_id
+        cur = store.topics[current_id]
+        cur_label = (cur.label or "").strip().lower()
+        if not cur_label:
+            return current_id
+        # Find another topic with same label
+        for tid, t in list(store.topics.items()):
+            if tid == current_id:
+                continue
+            if (t.label or "").strip().lower() == cur_label:
+                # Keep the most recently updated
+                keep = tid if t.last_updated >= cur.last_updated else current_id
+                drop = current_id if keep == tid else tid
+                return merge_topics(keep, drop)
+        return current_id
+
     # 节点3：压缩（关键词/总结/修正标签）
     async def compress_node(state: Dict[str, Any]):
         tid = state.get("topic_id")
@@ -454,15 +608,18 @@ def build_graph():
         try:
             data = json.loads(one_line_json(resp))
             if isinstance(data.get("keyphrases"), list) and data["keyphrases"]:
-                t.keyphrases = [str(k)[:30] for k in data["keyphrases"]][:5]
+                t.keyphrases = normalize_keyphrases(data["keyphrases"])
             if isinstance(data.get("summary"), str):
                 t.summary = data["summary"].strip()
             if isinstance(data.get("label"), str) and data["label"].strip():
                 t.label = normalize_label(data["label"])
             t.last_updated = time.time()
+            # Deduplicate topics that ended up with the same label
+            kept = dedup_by_label(tid)
+            return {"changed": True, "topic_id": kept}
         except Exception:
             pass
-        return {"changed": True}
+        return {"changed": True, "topic_id": tid}
 
     g.add_node("router", route_node)
     g.add_node("exec", exec_node)
@@ -495,6 +652,23 @@ def health():
 def get_topics():
     env = TopicsEnvelope(topics=store.as_payload(MAX_POINTS_PER_TOPIC))
     return json.loads(env.model_dump_json())
+
+@app.post("/maintenance/dedup_all")
+def dedup_all():
+    """Normalize keyphrases/labels and merge duplicate topics (live + history)."""
+    live_stats = dedup_topics_map(store.topics)
+    history_stats = {"canvases": 0, "merged": 0, "normalized": 0}
+    for canvas in canvas_store.canvases:
+        res = dedup_topics_map(canvas.topics)
+        history_stats["canvases"] += 1
+        history_stats["merged"] += res["merged"]
+        history_stats["normalized"] += res["normalized"]
+    # Persist history changes
+    try:
+        canvas_store._save()
+    except Exception as e:
+        print(f"[maintenance] failed to save canvas history after dedup: {e}")
+    return {"ok": True, "live": live_stats, "history": history_stats}
 
 @app.post("/demo/clear")
 async def demo_clear():
@@ -545,14 +719,38 @@ def delete_canvas(canvas_id: str):
         return {"error": "Canvas not found"}
     return {"ok": True, "deleted": canvas_id}
 
+@app.patch("/canvas/{canvas_id}/positions")
+async def update_canvas_positions(canvas_id: str, request: Request):
+    """Update stored positions for an existing canvas"""
+    canvas = canvas_store.get_by_id(canvas_id)
+    if not canvas:
+        return {"error": "Canvas not found"}
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    positions = sanitize_positions(payload.get("positions", {}))
+    canvas.positions = positions
+    canvas_store._save()
+    return {"ok": True, "positions": positions}
+
 @app.post("/canvas/new")
-async def create_new_canvas():
+async def create_new_canvas(request: Request):
     """Save current topics as a canvas and start fresh"""
     # Filter out empty topics (no points)
     valid_topics = {tid: t for tid, t in store.topics.items() if t.points}
     # If no valid topics, do not save
     if not valid_topics:
         return {"ok": True, "message": "No topics to save"}
+
+    # Optional positions payload from frontend
+    positions_payload = {}
+    try:
+        payload = await request.json()
+        if isinstance(payload, dict):
+            positions_payload = payload.get("positions") or {}
+    except Exception:
+        positions_payload = {}
     
     # Generate title and summary using LLM
     topics_info = []
@@ -585,12 +783,15 @@ async def create_new_canvas():
         )
 
     # Create canvas
+    canvas_positions = sanitize_positions(positions_payload)
+
     canvas = Canvas(
         id=str(uuid.uuid4())[:8],
         title=title,
         summary=summary,
         topics=topics_copy,
-        created_at=datetime.now().isoformat()
+        created_at=datetime.now().isoformat(),
+        positions=canvas_positions
     )
     
     # Save to history
@@ -625,7 +826,10 @@ async def load_canvas(canvas_id: str):
             last_updated=topic.last_updated
         )
     
-    return {"ok": True, "loaded": canvas_id}
+    # Return positions (if any) so frontend can reuse layout
+    positions = canvas.positions if isinstance(canvas.positions, dict) else {}
+    
+    return {"ok": True, "loaded": canvas_id, "positions": positions}
 
 @app.post("/demo/process")
 async def demo_process(request: dict):
