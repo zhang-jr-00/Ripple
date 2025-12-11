@@ -164,6 +164,15 @@ class CanvasStore:
         self.canvases.insert(0, canvas)  # Most recent first
         self._save()
     
+    def delete(self, canvas_id: str) -> bool:
+        """Delete a canvas from history"""
+        for idx, canvas in enumerate(self.canvases):
+            if canvas.id == canvas_id:
+                self.canvases.pop(idx)
+                self._save()
+                return True
+        return False
+    
     def get_list(self) -> List[dict]:
         """Get list of canvases (id, title, summary, created_at)"""
         return [{
@@ -527,6 +536,14 @@ def get_canvas(canvas_id: str):
         "created_at": canvas.created_at,
         "topics": topics_payload
     }
+
+@app.delete("/canvas/{canvas_id}")
+def delete_canvas(canvas_id: str):
+    """Delete a canvas by ID"""
+    deleted = canvas_store.delete(canvas_id)
+    if not deleted:
+        return {"error": "Canvas not found"}
+    return {"ok": True, "deleted": canvas_id}
 
 @app.post("/canvas/new")
 async def create_new_canvas():

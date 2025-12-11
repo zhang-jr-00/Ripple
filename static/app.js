@@ -57,6 +57,24 @@ function App() {
       console.error('[demo] failed to clear cache', err)
     }
   }
+  const loadHistoryCache = () => {
+    if (typeof localStorage === 'undefined') return []
+    try {
+      const raw = localStorage.getItem(HISTORY_STORAGE_KEY)
+      return raw ? JSON.parse(raw) : []
+    } catch (err) {
+      console.error('[history] failed to read cache', err)
+      return []
+    }
+  }
+  const saveHistoryCache = (list = []) => {
+    if (typeof localStorage === 'undefined') return
+    try {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list))
+    } catch (err) {
+      console.error('[history] failed to write cache', err)
+    }
+  }
   
   // 水滴与波纹特效
   const [dropEffects, setDropEffects] = useState([])
@@ -181,6 +199,16 @@ const IconPlus = (props = {}) => React.createElement(
   React.createElement('line', { x1: 5, y1: 12, x2: 19, y2: 12 })
 )
 
+const IconTrash = (props = {}) => React.createElement(
+  'svg',
+  iconProps(props),
+  React.createElement('path', { d: 'M3 6h18' }),
+  React.createElement('path', { d: 'M8 6v14a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6' }),
+  React.createElement('path', { d: 'M10 11v6' }),
+  React.createElement('path', { d: 'M14 11v6' }),
+  React.createElement('path', { d: 'M9 6l1-3h4l1 3' })
+)
+
 const IconHistory = (props = {}) => React.createElement(
   'svg',
   iconProps(props),
@@ -227,6 +255,8 @@ const MAP_MARGIN_Y = 180
 const MAP_SCROLL_PADDING = 220
 const MAX_CIRCLE_ATTEMPTS = 600
 const GRADIENT_BLOB_COUNT = 4
+// Local storage keys
+const HISTORY_STORAGE_KEY = 'ripple-canvas-history-v1'
 const DEMO_STORAGE_KEY = 'ripple-demo-state-v1'
 
 const clampText = (text = '', limit = 20) => {
@@ -664,12 +694,37 @@ const buildDynamicGradientSnapshot = (time = 0) => {
     try {
       const response = await fetch('/canvas/history')
       const data = await response.json()
-      setHistoryList(data.canvases || [])
+      const list = data.canvases || []
+      setHistoryList(list)
+      saveHistoryCache(list)
     } catch (err) {
       console.error('[canvas] Error loading history:', err)
-      setHistoryList([])
+      const cached = loadHistoryCache()
+      setHistoryList(cached)
     }
     setLoadingHistory(false)
+  }
+  
+  // Delete a canvas from history (state + local storage)
+  const deleteHistoryItem = async (canvasId, event) => {
+    if (event && event.stopPropagation) {
+      event.stopPropagation()
+    }
+    try {
+      const response = await fetch(`/canvas/${canvasId}`, { method: 'DELETE' })
+      const data = await response.json()
+      if (data && data.ok) {
+        setHistoryList(prev => {
+          const next = prev.filter(item => item.id !== canvasId)
+          saveHistoryCache(next)
+          return next
+        })
+      } else {
+        console.error('[canvas] Delete failed:', data && data.error)
+      }
+    } catch (err) {
+      console.error('[canvas] Error deleting canvas:', err)
+    }
   }
   
   // Toggle history panel
@@ -1722,7 +1777,16 @@ const buildDynamicGradientSnapshot = (time = 0) => {
                   className: 'history-item',
                   onClick: () => loadCanvas(canvas.id)
                 },
-                  React.createElement('div', {className: 'history-item-title'}, canvas.title),
+                  React.createElement('div', {className: 'history-item-top'},
+                    React.createElement('div', {className: 'history-item-title'}, canvas.title),
+                    React.createElement('button', {
+                      className: 'history-delete-btn',
+                      title: 'Delete this canvas',
+                      onClick: (e) => deleteHistoryItem(canvas.id, e)
+                    },
+                      React.createElement(IconTrash, {className: 'icon'})
+                    )
+                  ),
                   React.createElement('div', {className: 'history-item-summary'}, canvas.summary),
                   React.createElement('div', {className: 'history-item-meta'},
                     `${canvas.topic_count} topics • ${new Date(canvas.created_at).toLocaleDateString()}`

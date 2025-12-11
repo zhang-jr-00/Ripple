@@ -1242,6 +1242,35 @@
   transition:all 200ms ease;
 }
 
+.history-item-top {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:6px;
+}
+
+.history-delete-btn {
+  background:transparent;
+  border:none;
+  padding:6px;
+  border-radius:8px;
+  color:rgba(255,255,255,0.5);
+  cursor:pointer;
+  transition:all 150ms ease;
+  flex-shrink:0;
+}
+
+.history-delete-btn .icon {
+  width:16px;
+  height:16px;
+}
+
+.history-delete-btn:hover {
+  background:rgba(255,255,255,0.12);
+  color:#ffffff;
+}
+
 .history-item:hover {
   background:rgba(255,255,255,0.12);
   border-color:rgba(255,255,255,0.2);
