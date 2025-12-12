@@ -462,11 +462,17 @@
     margin:0 auto;
   
     /* give space above the mic button and allow scrolling */
-    padding:40px 0 280px;
-    overflow-y:auto;
-    max-height:calc(100vh - 220px);
+  padding:64px 12px 300px; /* extra inset keeps lane shadows inside the scroll area */
+  overflow-y:auto;
+  overflow-x:visible; /* allow shadows to render past the content box */
+  max-height:calc(100vh - 220px);
+  scrollbar-gutter:stable;
+  scrollbar-width:none;       /* hide scrollbar in Firefox */
+  -ms-overflow-style:none;    /* hide scrollbar in IE/Edge legacy */
   }
   
+.lanes-view::-webkit-scrollbar { display:none; } /* hide scrollbar in WebKit */
+
   .lane-card {
     position:relative;
     display:flex;
@@ -479,7 +485,7 @@
     background:linear-gradient(30deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08), rgba(255,255,255,0.05));
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
-    box-shadow:0 10px 32px rgba(0,0,0,0.24), 0 0 0 1px rgba(255,255,255,0.06);
+    box-shadow:0 5px 8px rgba(0,0,0,0.24), 0 0 0 1px rgba(255,255,255,0.06);
     cursor:pointer;
     overflow:hidden;
     isolation:isolate;
@@ -589,7 +595,11 @@
   overflow-y:visible; /* allow lifted selected cards to show fully */
   padding:8px 0;
   -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
   }
+
+.stack-track::-webkit-scrollbar { display:none; }
 
 /* Let card shadows breathe in lanes/stacks views */
 .view-stacks .app-content,
@@ -606,7 +616,7 @@
     background:linear-gradient(30deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08), rgba(255,255,255,0.05));
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
-    box-shadow:0 10px 32px rgba(0,0,0,0.24), 0 0 0 1px rgba(255,255,255,0.06);
+    box-shadow:0 5px 8px rgba(0,0,0,0.24), 0 0 0 1px rgba(255,255,255,0.06);
     padding:20px;
     display:flex;
     flex-direction:column;
@@ -829,7 +839,17 @@
     padding:20px;
     box-shadow:0 8px 32px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.1);
   }
-  
+
+  /* when a ripple is being dragged, turn off smooth transitions & waves */
+  .ripple.dragging {
+    transition: none !important;
+  }
+
+  .ripple.dragging::before,
+  .ripple.dragging::after {
+    animation: none !important;
+  }
+
   /* 涟漪同心圆效果 */
   .ripple:before,
   .ripple:after {
@@ -1220,6 +1240,14 @@
   display:flex;
   flex-direction:column;
   gap:12px;
+
+  /* hide the scrollbar, keep scrolling */
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE / Edge legacy */
+}
+
+.history-list::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari / WebKit */
 }
 
 .history-loading,

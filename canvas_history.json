@@ -1,8 +1,452 @@
 [
   {
-    "id": "2b2893dc",
-    "title": "Cross-Topic Brainstorming Recap",
-    "summary": "AR needs, community engagement strategies, writing tips, project analysis, travel planning",
+    "id": "278e53d5",
+    "title": "Travel & Budget Initiatives",
+    "summary": "Session covered travel plans for Lijiang and Erhai, budgeting tips, photography comparisons, and project initiatives",
+    "topics": {
+      "0b4f734d": {
+        "id": "0b4f734d",
+        "label": "Travel Plan",
+        "keyphrases": [
+          "Ancient Town Lijiang",
+          "Erhai homestay",
+          "morning cycling",
+          "budget planning",
+          "cash points"
+        ],
+        "points": [
+          "Recently I've been planning a trip to Yunnan, mainly just to relax,",
+          "Dali scenery",
+          "Ancient Town Lijiang",
+          "homestay by Erhai",
+          "cycling around the lake in the morning",
+          "budget planning",
+          "saving cash with points",
+          "apartment-style homestays with kitchens",
+          "travel to Yunnan",
+          "daily writing"
+        ],
+        "summary": "Travel plan for Ancient Town Lijiang, Erhai homestays, and budgeting in Yunnan",
+        "last_updated": 1765482065.3641658
+      },
+      "c0c39eba": {
+        "id": "c0c39eba",
+        "label": "Budget Tips",
+        "keyphrases": [
+          "cooking savings",
+          "camera reviews"
+        ],
+        "points": [
+          "so cooking myself can save some money compared to eating out every day.",
+          "checking camera reviews"
+        ],
+        "summary": "Budget cooking tips and camera review insights",
+        "last_updated": 1765482044.3547251
+      },
+      "9f6b3c0b": {
+        "id": "9f6b3c0b",
+        "label": "Photography",
+        "keyphrases": [
+          "portable cameras",
+          "comparison",
+          "recent points"
+        ],
+        "points": [
+          "Changing the subject, I am comparing several portable cameras right now."
+        ],
+        "summary": "Comparing portable cameras for review",
+        "last_updated": 1765482029.2847328
+      },
+      "5c587344": {
+        "id": "5c587344",
+        "label": "Project Initiatives",
+        "keyphrases": [
+          "Creative Project"
+        ],
+        "points": [
+          "Creative Project"
+        ],
+        "summary": "Summary of creative project initiatives",
+        "last_updated": 1765482050.146806
+      },
+      "e77e90da": {
+        "id": "e77e90da",
+        "label": "Inspiration",
+        "keyphrases": [
+          "Voice Inspiration Organization"
+        ],
+        "points": [
+          "Voice Inspiration Organization"
+        ],
+        "summary": "Organization promoting voice-based creativity",
+        "last_updated": 1765482056.140531
+      }
+    },
+    "created_at": "2025-12-11T18:22:53.577599",
+    "positions": {
+      "0b4f734d": {
+        "ripple": {
+          "x": 187.4,
+          "y": 187.4,
+          "size": 294.8
+        },
+        "map": {
+          "x": 942.0006762647336,
+          "y": 600.4591697587289
+        }
+      },
+      "e77e90da": {
+        "ripple": {
+          "x": 472.4166140474669,
+          "y": 449.0,
+          "size": 236.0
+        },
+        "map": {
+          "x": 124.98591618969158,
+          "y": 650.7668958506681
+        },
+        "keywords": {
+          "Voice Inspiration Organization-0": {
+            "x": 942.5423258089679,
+            "y": 286.01567495446943
+          }
+        }
+      },
+      "5c587344": {
+        "ripple": {
+          "x": 1298.4602338589684,
+          "y": 457.4,
+          "size": 219.2
+        },
+        "map": {
+          "x": 669.4227431740546,
+          "y": 445.0787627868958
+        }
+      },
+      "c0c39eba": {
+        "ripple": {
+          "x": 843.423799049761,
+          "y": 449.0,
+          "size": 236.0
+        },
+        "map": {
+          "x": 330.8443323751635,
+          "y": 522.5086490074345
+        }
+      },
+      "9f6b3c0b": {
+        "ripple": {
+          "x": 1080.14904416677,
+          "y": 164.6,
+          "size": 249.2
+        },
+        "map": {
+          "x": 142.93175525296647,
+          "y": 330.45044005796535
+        }
+      }
+    }
+  },
+  {
+    "id": "b5995da5",
+    "title": "Travel & Budgeting in Yunnan",
+    "summary": "Discussion on travel plan for Lijiang, Erhai homestays, and budget tips",
+    "topics": {
+      "0b4f734d": {
+        "id": "0b4f734d",
+        "label": "Travel Plan",
+        "keyphrases": [
+          "Ancient Town Lijiang",
+          "Erhai homestay",
+          "morning cycling",
+          "budget planning",
+          "cash points"
+        ],
+        "points": [
+          "Recently I've been planning a trip to Yunnan, mainly just to relax,",
+          "Dali scenery",
+          "Ancient Town Lijiang",
+          "homestay by Erhai",
+          "cycling around the lake in the morning",
+          "budget planning",
+          "saving cash with points",
+          "apartment-style homestays with kitchens",
+          "travel to Yunnan",
+          "daily writing"
+        ],
+        "summary": "Travel plan for Ancient Town Lijiang, Erhai homestays, and budgeting in Yunnan",
+        "last_updated": 1765482065.3641658
+      },
+      "c0c39eba": {
+        "id": "c0c39eba",
+        "label": "Budget Tips",
+        "keyphrases": [
+          "cooking savings",
+          "camera reviews"
+        ],
+        "points": [
+          "so cooking myself can save some money compared to eating out every day.",
+          "checking camera reviews"
+        ],
+        "summary": "Budget cooking tips and camera review insights",
+        "last_updated": 1765482044.3547251
+      },
+      "9f6b3c0b": {
+        "id": "9f6b3c0b",
+        "label": "Photography",
+        "keyphrases": [
+          "portable cameras",
+          "comparison",
+          "recent points"
+        ],
+        "points": [
+          "Changing the subject, I am comparing several portable cameras right now."
+        ],
+        "summary": "Comparing portable cameras for review",
+        "last_updated": 1765482029.2847328
+      },
+      "5c587344": {
+        "id": "5c587344",
+        "label": "Project Initiatives",
+        "keyphrases": [
+          "Creative Project"
+        ],
+        "points": [
+          "Creative Project"
+        ],
+        "summary": "Summary of creative project initiatives",
+        "last_updated": 1765482050.146806
+      },
+      "e77e90da": {
+        "id": "e77e90da",
+        "label": "Inspiration",
+        "keyphrases": [
+          "Voice Inspiration Organization"
+        ],
+        "points": [
+          "Voice Inspiration Organization"
+        ],
+        "summary": "Organization promoting voice-based creativity",
+        "last_updated": 1765482056.140531
+      }
+    },
+    "created_at": "2025-12-11T18:22:52.097587",
+    "positions": {
+      "0b4f734d": {
+        "ripple": {
+          "x": 187.4,
+          "y": 187.4,
+          "size": 294.8
+        },
+        "map": {
+          "x": 942.0006762647336,
+          "y": 600.4591697587289
+        }
+      },
+      "e77e90da": {
+        "ripple": {
+          "x": 486.3224567100632,
+          "y": 449.0,
+          "size": 236.0
+        },
+        "map": {
+          "x": 124.98591618969158,
+          "y": 650.7668958506681
+        },
+        "keywords": {
+          "Voice Inspiration Organization-0": {
+            "x": 942.5423258089679,
+            "y": 286.01567495446943
+          }
+        }
+      },
+      "5c587344": {
+        "ripple": {
+          "x": 1320.4,
+          "y": 457.4,
+          "size": 219.2
+        },
+        "map": {
+          "x": 669.4227431740546,
+          "y": 445.0787627868958
+        }
+      },
+      "c0c39eba": {
+        "ripple": {
+          "x": 859.4303196805422,
+          "y": 449.0,
+          "size": 236.0
+        },
+        "map": {
+          "x": 330.8443323751635,
+          "y": 522.5086490074345
+        }
+      },
+      "9f6b3c0b": {
+        "ripple": {
+          "x": 1102.894351683691,
+          "y": 164.6,
+          "size": 249.2
+        },
+        "map": {
+          "x": 142.93175525296647,
+          "y": 330.45044005796535
+        }
+      }
+    }
+  },
+  {
+    "id": "e6b176fb",
+    "title": "Yunnan Travel & Budgeting Brainstorm",
+    "summary": "Discussion on travel plan for Lijiang, Erhai homestays, budget tips, photography comparison",
+    "topics": {
+      "0b4f734d": {
+        "id": "0b4f734d",
+        "label": "Travel Plan",
+        "keyphrases": [
+          "Ancient Town Lijiang",
+          "Erhai homestay",
+          "morning cycling",
+          "budget planning",
+          "cash points"
+        ],
+        "points": [
+          "Recently I've been planning a trip to Yunnan, mainly just to relax,",
+          "Dali scenery",
+          "Ancient Town Lijiang",
+          "homestay by Erhai",
+          "cycling around the lake in the morning",
+          "budget planning",
+          "saving cash with points",
+          "apartment-style homestays with kitchens",
+          "travel to Yunnan",
+          "daily writing"
+        ],
+        "summary": "Travel plan for Ancient Town Lijiang, Erhai homestays, and budgeting in Yunnan",
+        "last_updated": 1765482065.3641658
+      },
+      "c0c39eba": {
+        "id": "c0c39eba",
+        "label": "Budget Tips",
+        "keyphrases": [
+          "cooking savings",
+          "camera reviews"
+        ],
+        "points": [
+          "so cooking myself can save some money compared to eating out every day.",
+          "checking camera reviews"
+        ],
+        "summary": "Budget cooking tips and camera review insights",
+        "last_updated": 1765482044.3547251
+      },
+      "9f6b3c0b": {
+        "id": "9f6b3c0b",
+        "label": "Photography",
+        "keyphrases": [
+          "portable cameras",
+          "comparison",
+          "recent points"
+        ],
+        "points": [
+          "Changing the subject, I am comparing several portable cameras right now."
+        ],
+        "summary": "Comparing portable cameras for review",
+        "last_updated": 1765482029.2847328
+      },
+      "5c587344": {
+        "id": "5c587344",
+        "label": "Project Initiatives",
+        "keyphrases": [
+          "Creative Project"
+        ],
+        "points": [
+          "Creative Project"
+        ],
+        "summary": "Summary of creative project initiatives",
+        "last_updated": 1765482050.146806
+      },
+      "e77e90da": {
+        "id": "e77e90da",
+        "label": "Inspiration",
+        "keyphrases": [
+          "Voice Inspiration Organization"
+        ],
+        "points": [
+          "Voice Inspiration Organization"
+        ],
+        "summary": "Organization promoting voice-based creativity",
+        "last_updated": 1765482056.140531
+      }
+    },
+    "created_at": "2025-12-11T15:28:14.205512",
+    "positions": {
+      "0b4f734d": {
+        "ripple": {
+          "x": 350.83023639551834,
+          "y": 258.70859375,
+          "size": 294.8
+        },
+        "map": {
+          "x": 942.0006762647336,
+          "y": 600.4591697587289
+        }
+      },
+      "e77e90da": {
+        "ripple": {
+          "x": 411.80162324347054,
+          "y": 440.3828125,
+          "size": 236.0
+        },
+        "map": {
+          "x": 124.98591618969158,
+          "y": 650.7668958506681
+        },
+        "keywords": {
+          "Voice Inspiration Organization-0": {
+            "x": 942.5423258089679,
+            "y": 286.01567495446943
+          }
+        }
+      },
+      "5c587344": {
+        "ripple": {
+          "x": 1085.6526373960057,
+          "y": 424.0953125,
+          "size": 219.2
+        },
+        "map": {
+          "x": 669.4227431740546,
+          "y": 445.0787627868958
+        }
+      },
+      "c0c39eba": {
+        "ripple": {
+          "x": 880.5378832884918,
+          "y": 483.3984375,
+          "size": 236.0
+        },
+        "map": {
+          "x": 330.8443323751635,
+          "y": 522.5086490074345
+        }
+      },
+      "9f6b3c0b": {
+        "ripple": {
+          "x": 987.8260903606397,
+          "y": 267.18984375,
+          "size": 249.2
+        },
+        "map": {
+          "x": 142.93175525296647,
+          "y": 330.45044005796535
+        }
+      }
+    }
+  },
+  {
+    "id": "448515ab",
+    "title": "Cross-Topic Brainstorming Session",
+    "summary": "Diverse topics discussed: AR, community work, writing tips, social media, project analysis, travel planning",
     "topics": {
       "2d670364": {
         "id": "2d670364",
@@ -100,11 +544,11 @@
         "last_updated": 1765487533.810283
       }
     },
-    "created_at": "2025-12-11T14:41:34.305122",
+    "created_at": "2025-12-11T14:56:55.487050",
     "positions": {
       "95876425": {
         "ripple": {
-          "x": 514.6907012856446,
+          "x": 706.56863043032,
           "y": 462.8,
           "size": 208.4
         },
@@ -115,7 +559,7 @@
       },
       "6fae7a28": {
         "ripple": {
-          "x": 899.8,
+          "x": 1286.8,
           "y": 183.2,
           "size": 286.4
         },
@@ -126,7 +570,7 @@
       },
       "e1fc55d0": {
         "ripple": {
-          "x": 427.9009217869674,
+          "x": 534.1746207985447,
           "y": 146.6,
           "size": 213.2
         },
@@ -143,7 +587,7 @@
       },
       "d956204c": {
         "ripple": {
-          "x": 693.2929899714113,
+          "x": 888.8437779105562,
           "y": 160.4,
           "size": 240.8
         },
@@ -154,7 +598,7 @@
       },
       "6729c3d5": {
         "ripple": {
-          "x": 825.6082278784972,
+          "x": 1047.9094313713986,
           "y": 455.0,
           "size": 224.0
         },
@@ -165,7 +609,7 @@
       },
       "7a91bdeb": {
         "ripple": {
-          "x": 167.0,
+          "x": 345.3169867266295,
           "y": 440.0,
           "size": 254.0
         },
@@ -183,628 +627,6 @@
         "map": {
           "x": 941.4116462015772,
           "y": 617.4788405627651
-        }
-      }
-    }
-  },
-  {
-    "id": "ec90b01b",
-    "title": "AR Community Engagement Brainstorming",
-    "summary": "Exploring AR in acquisitions, community work challenges, writing tips, social media stories, project analysis, travel planning",
-    "topics": {
-      "2d670364": {
-        "id": "2d670364",
-        "label": "Arneeds",
-        "keyphrases": [
-          "AR needs",
-          "acquisition value",
-          "narrative-run"
-        ],
-        "points": [
-          "I know you explore AR, what are other needs of acquisition that you think would be valuable in itself and narrative-runn…"
-        ],
-        "summary": "Explore AR's acquisition needs and narrative value",
-        "last_updated": 1765483227.8810282
-      },
-      "7a91bdeb": {
-        "id": "7a91bdeb",
-        "label": "Community Work",
-        "keyphrases": [
-          "pure fencing",
-          "community work",
-          "activation medium"
-        ],
-        "points": [
-          "I can't be working on with you all over the community if we're using pure fencing as the activation medium. Um, I imagin…"
-        ],
-        "summary": "Community work hindered by pure fencing activation",
-        "last_updated": 1765483237.828285
-      },
-      "95876425": {
-        "id": "95876425",
-        "label": "Writing Tips",
-        "keyphrases": [
-          "Writing"
-        ],
-        "points": [
-          "Writing"
-        ],
-        "summary": "Current writing tasks and tips",
-        "last_updated": 1765483257.325591
-      },
-      "6729c3d5": {
-        "id": "6729c3d5",
-        "label": "Social Media Engagement",
-        "keyphrases": [
-          "Community AR Stories"
-        ],
-        "points": [
-          "Community AR Stories"
-        ],
-        "summary": "AR stories for community engagement",
-        "last_updated": 1765483290.894882
-      },
-      "d956204c": {
-        "id": "d956204c",
-        "label": "Project Analysis",
-        "keyphrases": [
-          "project differences",
-          "expansion work"
-        ],
-        "points": [
-          "I can understand what is different about your project or how is it an expansion of that work? Thank you for that, Meliss…"
-        ],
-        "summary": "Project differences and expansion",
-        "last_updated": 1765483301.007283
-      },
-      "e1fc55d0": {
-        "id": "e1fc55d0",
-        "label": "Travel",
-        "keyphrases": [
-          "travel plan"
-        ],
-        "points": [
-          "Travel Plan"
-        ],
-        "summary": "Upcoming travel itinerary planning",
-        "last_updated": 1765483310.9443772
-      },
-      "6fae7a28": {
-        "id": "6fae7a28",
-        "label": "Writing",
-        "keyphrases": [
-          "Writing Tips",
-          "Tips for Writers",
-          "Effective Writing",
-          "Writing",
-          "Creative Writing"
-        ],
-        "points": [
-          "Writing Tips",
-          "Writing",
-          "Creative Writing"
-        ],
-        "summary": "Best writing tips and strategies",
-        "last_updated": 1765487533.810283
-      }
-    },
-    "created_at": "2025-12-11T14:41:33.066048",
-    "positions": {
-      "95876425": {
-        "ripple": {
-          "x": 707.4438919366413,
-          "y": 462.8,
-          "size": 208.4
-        },
-        "map": {
-          "x": 1091.1079636282557,
-          "y": 231.4802857349033
-        }
-      },
-      "6fae7a28": {
-        "ripple": {
-          "x": 1286.5734375,
-          "y": 183.2,
-          "size": 286.4
-        },
-        "map": {
-          "x": 680.8697342435335,
-          "y": 635.2092428717733
-        }
-      },
-      "e1fc55d0": {
-        "ripple": {
-          "x": 655.4428146562537,
-          "y": 279.77578125,
-          "size": 213.2
-        },
-        "map": {
-          "x": 631.9680294852005,
-          "y": 99.19854385565304
-        },
-        "keywords": {
-          "travel plan-0": {
-            "x": 1131.062940977674,
-            "y": 166.15305504298314
-          }
-        }
-      },
-      "d956204c": {
-        "ripple": {
-          "x": 888.4636883007647,
-          "y": 218.59921875,
-          "size": 240.8
-        },
-        "map": {
-          "x": 1312.3174504711005,
-          "y": 574.0491151663391
-        }
-      },
-      "6729c3d5": {
-        "ripple": {
-          "x": 1048.6075563151164,
-          "y": 455.0,
-          "size": 224.0
-        },
-        "map": {
-          "x": 552.9359084166026,
-          "y": 579.1704480190301
-        }
-      },
-      "7a91bdeb": {
-        "ripple": {
-          "x": 572.9490059143304,
-          "y": 548.75390625,
-          "size": 254.0
-        },
-        "map": {
-          "x": 1402.2715255557705,
-          "y": 386.90247302660737
-        }
-      },
-      "2d670364": {
-        "ripple": {
-          "x": 363.96875,
-          "y": 244.50390625,
-          "size": 248.0
-        },
-        "map": {
-          "x": 941.4116462015772,
-          "y": 617.4788405627651
-        }
-      }
-    }
-  },
-  {
-    "id": "ed62fc66",
-    "title": "Travel & Budgeting in Yunnan",
-    "summary": "Discussion on travel plans, budget tips, photography options for Yunnan exploration",
-    "topics": {
-      "0b4f734d": {
-        "id": "0b4f734d",
-        "label": "Travel Plan",
-        "keyphrases": [
-          "Ancient Town Lijiang",
-          "Erhai homestay",
-          "morning cycling",
-          "budget planning",
-          "cash points"
-        ],
-        "points": [
-          "Recently I've been planning a trip to Yunnan, mainly just to relax,",
-          "Dali scenery",
-          "Ancient Town Lijiang",
-          "homestay by Erhai",
-          "cycling around the lake in the morning",
-          "budget planning",
-          "saving cash with points",
-          "apartment-style homestays with kitchens",
-          "travel to Yunnan",
-          "daily writing"
-        ],
-        "summary": "Travel plan for Ancient Town Lijiang, Erhai homestays, and budgeting in Yunnan",
-        "last_updated": 1765482065.3641658
-      },
-      "c0c39eba": {
-        "id": "c0c39eba",
-        "label": "Budget Tips",
-        "keyphrases": [
-          "cooking savings",
-          "camera reviews"
-        ],
-        "points": [
-          "so cooking myself can save some money compared to eating out every day.",
-          "checking camera reviews"
-        ],
-        "summary": "Budget cooking tips and camera review insights",
-        "last_updated": 1765482044.3547251
-      },
-      "9f6b3c0b": {
-        "id": "9f6b3c0b",
-        "label": "Photography",
-        "keyphrases": [
-          "portable cameras",
-          "comparison",
-          "recent points"
-        ],
-        "points": [
-          "Changing the subject, I am comparing several portable cameras right now."
-        ],
-        "summary": "Comparing portable cameras for review",
-        "last_updated": 1765482029.2847328
-      },
-      "5c587344": {
-        "id": "5c587344",
-        "label": "Project Initiatives",
-        "keyphrases": [
-          "Creative Project"
-        ],
-        "points": [
-          "Creative Project"
-        ],
-        "summary": "Summary of creative project initiatives",
-        "last_updated": 1765482050.146806
-      },
-      "e77e90da": {
-        "id": "e77e90da",
-        "label": "Inspiration",
-        "keyphrases": [
-          "Voice Inspiration Organization"
-        ],
-        "points": [
-          "Voice Inspiration Organization"
-        ],
-        "summary": "Organization promoting voice-based creativity",
-        "last_updated": 1765482056.140531
-      }
-    },
-    "created_at": "2025-12-11T14:28:56.394551",
-    "positions": {
-      "0b4f734d": {
-        "ripple": {
-          "x": 1029.6,
-          "y": 187.4,
-          "size": 294.8
-        },
-        "map": {
-          "x": 777.8235747575554,
-          "y": 600.4591697587289
-        }
-      },
-      "e77e90da": {
-        "ripple": {
-          "x": 158.0,
-          "y": 215.53946096063063,
-          "size": 236.0
-        },
-        "map": {
-          "x": 109.51725662422973,
-          "y": 650.7668958506681
-        },
-        "keywords": {
-          "Voice Inspiration Organization-0": {
-            "x": 942.5423258089679,
-            "y": 286.01567495446943
-          }
-        }
-      },
-      "5c587344": {
-        "ripple": {
-          "x": 803.5176926713059,
-          "y": 457.4,
-          "size": 219.2
-        },
-        "map": {
-          "x": 554.8587474740289,
-          "y": 445.0787627868958
-        }
-      },
-      "c0c39eba": {
-        "ripple": {
-          "x": 425.28388481260697,
-          "y": 449.0,
-          "size": 236.0
-        },
-        "map": {
-          "x": 277.906479072346,
-          "y": 522.5086490074345
-        }
-      },
-      "9f6b3c0b": {
-        "ripple": {
-          "x": 488.138160268461,
-          "y": 230.00625,
-          "size": 249.2
-        },
-        "map": {
-          "x": 124.19669476447689,
-          "y": 330.45044005796535
-        }
-      }
-    }
-  },
-  {
-    "id": "e677cb3b",
-    "title": "Creative Writing & AR Engagement",
-    "summary": "Session covers writing techniques, AR needs, community work challenges, and social media strategies.",
-    "topics": {
-      "2d670364": {
-        "id": "2d670364",
-        "label": "Arneeds",
-        "keyphrases": [
-          "AR needs",
-          "acquisition value",
-          "narrative-run"
-        ],
-        "points": [
-          "I know you explore AR, what are other needs of acquisition that you think would be valuable in itself and narrative-runn…"
-        ],
-        "summary": "Explore AR's acquisition needs and narrative value",
-        "last_updated": 1765483227.8810282
-      },
-      "7a91bdeb": {
-        "id": "7a91bdeb",
-        "label": "Community Work",
-        "keyphrases": [
-          "pure fencing",
-          "community work",
-          "activation medium"
-        ],
-        "points": [
-          "I can't be working on with you all over the community if we're using pure fencing as the activation medium. Um, I imagin…"
-        ],
-        "summary": "Community work hindered by pure fencing activation",
-        "last_updated": 1765483237.828285
-      },
-      "95876425": {
-        "id": "95876425",
-        "label": "Writing Tips",
-        "keyphrases": [
-          "Writing"
-        ],
-        "points": [
-          "Writing"
-        ],
-        "summary": "Current writing tasks and tips",
-        "last_updated": 1765483257.325591
-      },
-      "6729c3d5": {
-        "id": "6729c3d5",
-        "label": "Social Media Engagement",
-        "keyphrases": [
-          "Community AR Stories"
-        ],
-        "points": [
-          "Community AR Stories"
-        ],
-        "summary": "AR stories for community engagement",
-        "last_updated": 1765483290.894882
-      },
-      "d956204c": {
-        "id": "d956204c",
-        "label": "Project Analysis",
-        "keyphrases": [
-          "project differences",
-          "expansion work"
-        ],
-        "points": [
-          "I can understand what is different about your project or how is it an expansion of that work? Thank you for that, Meliss…"
-        ],
-        "summary": "Project differences and expansion",
-        "last_updated": 1765483301.007283
-      },
-      "e1fc55d0": {
-        "id": "e1fc55d0",
-        "label": "Travel",
-        "keyphrases": [
-          "travel plan"
-        ],
-        "points": [
-          "Travel Plan"
-        ],
-        "summary": "Upcoming travel itinerary planning",
-        "last_updated": 1765483310.9443772
-      },
-      "6fae7a28": {
-        "id": "6fae7a28",
-        "label": "Writing",
-        "keyphrases": [
-          "Writing Tips",
-          "Tips for Writers",
-          "Effective Writing",
-          "Writing",
-          "Creative Writing"
-        ],
-        "points": [
-          "Writing Tips",
-          "Writing",
-          "Creative Writing"
-        ],
-        "summary": "Best writing tips and strategies",
-        "last_updated": 1765487533.810283
-      }
-    },
-    "created_at": "2025-12-11T12:03:09.460294",
-    "positions": {
-      "95876425": {
-        "ripple": {
-          "x": 704.6574719069519,
-          "y": 462.8,
-          "size": 208.4
-        }
-      },
-      "6fae7a28": {
-        "ripple": {
-          "x": 1286.8,
-          "y": 183.2,
-          "size": 286.4
-        }
-      },
-      "e1fc55d0": {
-        "ripple": {
-          "x": 533.6096659097116,
-          "y": 350.21328125,
-          "size": 213.2
-        },
-        "map": {
-          "x": 631.9680294852005,
-          "y": 99.19854385565304
-        },
-        "keywords": {
-          "travel plan-0": {
-            "x": 1131.062940977674,
-            "y": 166.15305504298314
-          }
-        }
-      },
-      "d956204c": {
-        "ripple": {
-          "x": 887.9466347430656,
-          "y": 160.4,
-          "size": 240.8
-        }
-      },
-      "6729c3d5": {
-        "ripple": {
-          "x": 1046.4575595300796,
-          "y": 455.0,
-          "size": 224.0
-        }
-      },
-      "7a91bdeb": {
-        "ripple": {
-          "x": 343.7137881056033,
-          "y": 440.0,
-          "size": 254.0
-        }
-      },
-      "2d670364": {
-        "ripple": {
-          "x": 164.0,
-          "y": 164.0,
-          "size": 248.0
-        }
-      }
-    }
-  },
-  {
-    "id": "9f285b43",
-    "title": "Travel & Budgeting in Yunnan",
-    "summary": "Discussion on travel plans, budget tips, photography, and project initiatives for Yunnan region",
-    "topics": {
-      "0b4f734d": {
-        "id": "0b4f734d",
-        "label": "Travel Plan",
-        "keyphrases": [
-          "Ancient Town Lijiang",
-          "Erhai homestay",
-          "morning cycling",
-          "budget planning",
-          "cash points"
-        ],
-        "points": [
-          "Recently I've been planning a trip to Yunnan, mainly just to relax,",
-          "Dali scenery",
-          "Ancient Town Lijiang",
-          "homestay by Erhai",
-          "cycling around the lake in the morning",
-          "budget planning",
-          "saving cash with points",
-          "apartment-style homestays with kitchens",
-          "travel to Yunnan",
-          "daily writing"
-        ],
-        "summary": "Travel plan for Ancient Town Lijiang, Erhai homestays, and budgeting in Yunnan",
-        "last_updated": 1765482065.3641658
-      },
-      "c0c39eba": {
-        "id": "c0c39eba",
-        "label": "Budget Tips",
-        "keyphrases": [
-          "cooking savings",
-          "camera reviews"
-        ],
-        "points": [
-          "so cooking myself can save some money compared to eating out every day.",
-          "checking camera reviews"
-        ],
-        "summary": "Budget cooking tips and camera review insights",
-        "last_updated": 1765482044.3547251
-      },
-      "9f6b3c0b": {
-        "id": "9f6b3c0b",
-        "label": "Photography",
-        "keyphrases": [
-          "portable cameras",
-          "comparison",
-          "recent points"
-        ],
-        "points": [
-          "Changing the subject, I am comparing several portable cameras right now."
-        ],
-        "summary": "Comparing portable cameras for review",
-        "last_updated": 1765482029.2847328
-      },
-      "5c587344": {
-        "id": "5c587344",
-        "label": "Project Initiatives",
-        "keyphrases": [
-          "Creative Project"
-        ],
-        "points": [
-          "Creative Project"
-        ],
-        "summary": "Summary of creative project initiatives",
-        "last_updated": 1765482050.146806
-      },
-      "e77e90da": {
-        "id": "e77e90da",
-        "label": "Inspiration",
-        "keyphrases": [
-          "Voice Inspiration Organization"
-        ],
-        "points": [
-          "Voice Inspiration Organization"
-        ],
-        "summary": "Organization promoting voice-based creativity",
-        "last_updated": 1765482056.140531
-      }
-    },
-    "created_at": "2025-12-11T11:51:16.005045",
-    "positions": {
-      "0b4f734d": {
-        "ripple": {
-          "x": 990.679386159703,
-          "y": 300.82838234417216,
-          "size": 294.8
-        }
-      },
-      "e77e90da": {
-        "ripple": {
-          "x": 343.90625,
-          "y": 199.10546875,
-          "size": 236.0
-        }
-      },
-      "5c587344": {
-        "ripple": {
-          "x": 791.1003260593787,
-          "y": 457.4,
-          "size": 219.2
-        }
-      },
-      "c0c39eba": {
-        "ripple": {
-          "x": 610.3119499575623,
-          "y": 279.11328125,
-          "size": 236.0
-        }
-      },
-      "9f6b3c0b": {
-        "ripple": {
-          "x": 390.99224997689714,
-          "y": 442.4,
-          "size": 249.2
         }
       }
     }

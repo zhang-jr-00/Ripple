@@ -28,6 +28,9 @@ function App() {
   
   // Ripple 位置状态
   const [ripplePositions, setRipplePositions] = useState({})
+
+  const [draggingRippleId, setDraggingRippleId] = useState(null)
+  
   // 使用 ref 来存储最新的位置信息，避免批量更新时的竞态问题
   const positionsRef = useRef({})
   // Guard to avoid auto-starting the demo multiple times on /demo
@@ -167,41 +170,86 @@ function App() {
   const rippleDragRef = useRef(null)
   const rippleDragFrame = useRef(null)
 
+  // ➕ Add a flag to detect real dragging
+  const didRippleDragRef = useRef(false)
+
   const startRippleDrag = (event, topicId, size) => {
     event.preventDefault()
     event.stopPropagation()
+
     const pos = ripplePositions[topicId]
     if (!pos) return
+
+    didRippleDragRef.current = false
+    
     rippleDragRef.current = {
       id: topicId,
       offsetX: event.clientX - pos.x,
       offsetY: event.clientY - pos.y,
-      size: size || pos.size
+      size: size || pos.size,
+      lastClientX: event.clientX,
+      lastClientY: event.clientY
     }
+    // mark this ripple as being dragged (for CSS)
+    setDraggingRippleId(topicId)
+
     window.addEventListener('pointermove', onRippleDragMove, { passive: false })
     window.addEventListener('pointerup', endRippleDrag)
   }
 
   const onRippleDragMove = (event) => {
-    if (!rippleDragRef.current) return
-    const { id, offsetX, offsetY, size } = rippleDragRef.current
-    const next = {
-      x: event.clientX - offsetX,
-      y: event.clientY - offsetY,
-      size: size
-    }
-    setRipplePositions(prev => ({ ...prev, [id]: next }))
-    setPositionEntry(id, (prev) => ({ ...prev, ripple: next }))
+    const drag = rippleDragRef.current
+    if (!drag) return
+  
+    didRippleDragRef.current = true
+
+    event.preventDefault()
+    event.stopPropagation()
+  
+    // store the latest pointer position
+    drag.lastClientX = event.clientX
+    drag.lastClientY = event.clientY
+  
+    // only schedule one React update per frame
+    if (rippleDragFrame.current) return
+  
+    rippleDragFrame.current = requestAnimationFrame(() => {
+      rippleDragFrame.current = null
+      const d = rippleDragRef.current
+      if (!d || d.lastClientX == null || d.lastClientY == null) return
+  
+      const x = d.lastClientX - d.offsetX
+      const y = d.lastClientY - d.offsetY
+      const next = { x, y, size: d.size }
+  
+      setRipplePositions((prev) => ({
+        ...prev,
+        [d.id]: next,
+      }))
+  
+      setPositionEntry(d.id, (prev) => ({
+        ...prev,
+        ripple: next,
+      }))
+    })
   }
 
   const endRippleDrag = () => {
-    rippleDragRef.current = null
+    // cleanup listeners
+    window.removeEventListener("pointermove", onRippleDragMove)
+    window.removeEventListener("pointerup", endRippleDrag)
+  
+    // cancel any pending frame
     if (rippleDragFrame.current) {
       cancelAnimationFrame(rippleDragFrame.current)
       rippleDragFrame.current = null
     }
-    window.removeEventListener('pointermove', onRippleDragMove)
-    window.removeEventListener('pointerup', endRippleDrag)
+  
+    // clear drag ref and dragging state
+    rippleDragRef.current = null
+    setDraggingRippleId(null)
+  
+    // persist positions into the current canvas (NOT a new canvas)
     savePositionsToBackend()
   }
 
@@ -1514,6 +1562,8 @@ const buildDynamicGradientSnapshot = (time = 0) => {
     if (isNew) className.push('new')
     if (isUpdated) className.push('expanding')
     if (isSelected) className.push('selected')
+    if (draggingRippleId === topic.id) className.push('dragging')
+    
     
     const style = {
       left: `${pos.x}px`,
@@ -1536,7 +1586,14 @@ const buildDynamicGradientSnapshot = (time = 0) => {
       key: topic.id,
       className: className.join(' '),
       style,
-      onClick: () => setActiveId(activeId === topic.id ? null : topic.id),
+      onClick: (e) => {
+        // 如果刚刚是一次拖动结束产生的 click，就忽略
+        if (didRippleDragRef.current) {
+          didRippleDragRef.current = false   // 只吃掉这一次
+          return
+        }
+        setActiveId(activeId === topic.id ? null : topic.id)
+      },
       onPointerDown: (e) => startRippleDrag(e, topic.id, pos.size)
     },
       React.createElement('div', {
